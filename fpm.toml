@@ -1,0 +1,12 @@
+name = "WignerSymbol-f"
+version = "0.1.0"
+license = "license"
+author = "0382"
+maintainer = "18322825326@163.com"
+copyright = "Copyright 2022, 0382"
+[build]
+auto-executables = true
+auto-tests = true
+auto-examples = true
+[install]
+library = false
