@@ -1,4 +1,4 @@
-# WignerSymbol
+# WignerSymbol-f
 
 [English](README.md)
 
@@ -16,6 +16,12 @@ program test_wigner
     print*, wigner6j(6,6,6,6,6,6)
     print*, wigner9j(2,4,6,8,10,12,6,12,18)
 end program test_wigner
+```
+
+你也可以用fpm来安装
+```toml
+[dependencies]
+WignerSymbol-f = { git="https://github.com/0382/WignerSymbol-f.git" }
 ```
 
 ## 提供的函数

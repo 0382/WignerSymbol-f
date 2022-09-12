@@ -18,6 +18,12 @@ program test_wigner
 end program test_wigner
 ```
 
+Or you can use fpm
+```toml
+[dependencies]
+WignerSymbol-f = { git="https://github.com/0382/WignerSymbol-f.git" }
+```
+
 ## API
 ```fortran
 ! binomial
