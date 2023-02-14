@@ -27,29 +27,39 @@ WignerSymbol-f = { git="https://github.com/0382/WignerSymbol-f.git" }
 ## 提供的函数
 ```fortran
 ! binomial
-real(kind=8) function binomial(n, k)
+real(kind=8) pure function binomial(n, k)
     integer, intent(in) :: n, k
 end function binomial
 ! CG coefficient
-real(kind=8) function CG(dj1, dj2, dj3, dm1, dm2, dm3)
+real(kind=8) pure function CG(dj1, dj2, dj3, dm1, dm2, dm3)
     integer, intent(in) :: dj1, dj2, dj3, dm1, dm2, dm3
 end function CG
 ! Wigner 3j symbol
-real(kind=8) function wigner3j(dj1, dj2, dj3, dm1, dm2, dm3)
+real(kind=8) pure function wigner3j(dj1, dj2, dj3, dm1, dm2, dm3)
     integer, intent(in) :: dj1, dj2, dj3, dm1, dm2, dm3
 end function wigner3j
 ! Wigner 6j symbol
-real(kind=8) function wigner6j(dj1, dj2, dj3, dj4, dj5, dj6)
+real(kind=8) pure function wigner6j(dj1, dj2, dj3, dj4, dj5, dj6)
     integer, intent(in) :: dj1, dj2, dj3, dj4, dj5, dj6
 end function wigner6j
 ! Racah coefficient
-real(kind=8) function Racah(dj1, dj2, dj3, dj4, dj5, dj6)
+real(kind=8) pure function Racah(dj1, dj2, dj3, dj4, dj5, dj6)
     integer, intent(in) :: dj1, dj2, dj3, dj4, dj5, dj6
 end function Racah
 ! Wigner 9j symbol
-real(kind=8) function wigner9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)
+real(kind=8) pure function wigner9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)
     integer, intent(in) :: dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9
 end function wigner9j
+! wigner d-function
+real(kind=8) pure function dfunc(dj, dm1, dm2, beta) result(ans)
+    integer, intent(in) :: dj, dm1, dm2
+    real(kind=8), intent(in) :: beta
+end function dfunc
+! Buck et al. Nuc. Phys. A 600 (1996) 387-402
+real(kind=8) pure function Moshinsky(N, L, nr, lr, n1, l1, n2, l2, lambda, tan_beta) result(ans)
+    integer, intent(in) :: N, L, nr, lr, n1, l1, n2, l2, lambda
+    real(kind=8), intent(in), optional :: tan_beta
+end function Moshinsky
 ```
 其中，除了`binomial`函数之外，其余函数均使用真实角动量量子数的两倍作为参数，这是为了处理半整数角动量的情况。所以要计算`<10|1/2,1/2;1/2,-1/2>`这个CG系数，你需要调用的是
 ```fortran

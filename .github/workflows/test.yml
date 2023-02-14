@@ -23,7 +23,7 @@ jobs:
         run: fpm build --profile release
 
       - name: run test
-        run: fpm test test profile release
+        run: fpm test test --profile release
 
       - name: run benchmark
         run: fpm test benchmark --profile release
