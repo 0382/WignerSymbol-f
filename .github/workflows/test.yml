@@ -4,10 +4,21 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
 
     steps:
       - uses: actions/checkout@v3
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          path-type: inherit
+          install: |
+            mingw-w64-x86_64-gcc-fortran
+            mingw-w64-x86_64-fpm
+
       - name: build
         run: fpm build --profile release
 
@@ -16,3 +27,4 @@ jobs:
 
       - name: run benchmark
         run: fpm test benchmark --profile release
+
