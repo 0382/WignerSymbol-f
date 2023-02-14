@@ -1,3 +1,24 @@
+! MIT License
+
+! Copyright (c) 2022 0382
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
 module WignerSymbol
     implicit none
     private
@@ -12,15 +33,17 @@ module WignerSymbol
     public :: wigner6j
     public :: Racah
     public :: wigner9j
+    public :: dfunc
+    public :: Moshinsky
 
 contains
     ! judge if a number is a odd number
-    integer pure function isodd(n) result(ans)
+    integer elemental function isodd(n) result(ans)
         integer, intent(in) :: n
         ans = iand(n, 1)
     end function isodd
     ! judge if a number is a even number
-    integer pure function iseven(n) result(ans)
+    integer elemental function iseven(n) result(ans)
         integer, intent(in) :: n
         ans = 1 - isodd(n)
     end function iseven
@@ -30,7 +53,7 @@ contains
         ans = mod(ieor(m, n), 2) == 0
     end function is_same_parity
     ! return (-1)^n
-    integer pure function iphase(n) result(ans)
+    integer elemental function iphase(n) result(ans)
         integer, intent(in) :: n
         ans = iseven(n) - isodd(n)
     end function iphase
@@ -62,8 +85,23 @@ contains
         ans = x*(x - iseven(n)) + k
     end function binomial_index
 
+    pure real(kind=8) function quick_pow(x, n) result(ans)
+        real(kind=8), intent(in) :: x
+        integer, intent(in) :: n
+        real(kind=8) :: xx
+        integer :: nn
+        nn = n
+        xx = x
+        ans = 1.0d0
+        do while (nn /= 0)
+            if (iand(nn, 1) /= 0) ans = ans*xx; 
+            nn = nn/2
+            xx = xx*xx
+        end do
+    end function quick_pow
+
     ! checked binomial
-    real(kind=8) function binomial(n, k) result(ans)
+    real(kind=8) pure function binomial(n, k) result(ans)
         integer, intent(in) :: n, k
         if (n < 0 .or. n > m_nmax .or. k < 0 .or. k > n) then
             ans = 0.d0
@@ -73,12 +111,12 @@ contains
     end function binomial
 
     ! do not check bound, it is always safe in Wigner Symbols calculation
-    real(kind=8) function unsafe_binomial(n, k) result(ans)
+    real(kind=8) pure function unsafe_binomial(n, k) result(ans)
         integer, intent(in) :: n, k
         ans = m_binomial_data(binomial_index(n, min(k, n - k)))
     end function unsafe_binomial
 
-    real(kind=8) function CG(dj1, dj2, dj3, dm1, dm2, dm3) result(ans)
+    real(kind=8) pure function CG(dj1, dj2, dj3, dm1, dm2, dm3) result(ans)
         integer, intent(in) :: dj1, dj2, dj3, dm1, dm2, dm3
         integer :: J, jm1, jm2, jm3, j1mm1, j2mm2, j3mm3, j2pm2
         integer :: low, high, z
@@ -116,13 +154,13 @@ contains
         ans = iphase(high)*A*B
     end function CG
 
-    real(kind=8) function wigner3j(dj1, dj2, dj3, dm1, dm2, dm3) result(ans)
+    real(kind=8) pure function wigner3j(dj1, dj2, dj3, dm1, dm2, dm3) result(ans)
         integer, intent(in) :: dj1, dj2, dj3, dm1, dm2, dm3
         ans = iphase((dj1 + (dj3 + dm3)/2))*sqrt(1.d0/(dj3 + 1))* &
               CG(dj1, dj2, dj3, -dm1, -dm2, dm3)
     end function wigner3j
 
-    real(kind=8) function wigner6j(dj1, dj2, dj3, dj4, dj5, dj6) result(ans)
+    real(kind=8) pure function wigner6j(dj1, dj2, dj3, dj4, dj5, dj6) result(ans)
         integer, intent(in) :: dj1, dj2, dj3, dj4, dj5, dj6
         integer :: j123, j156, j426, j453
         integer :: jpm123, jpm132, jpm231, jpm156, jpm426, jpm453
@@ -157,12 +195,12 @@ contains
         ans = iphase(high)*A*B/(dj4 + 1)
     end function wigner6j
 
-    real(kind=8) function Racah(dj1, dj2, dj3, dj4, dj5, dj6) result(ans)
+    real(kind=8) pure function Racah(dj1, dj2, dj3, dj4, dj5, dj6) result(ans)
         integer, intent(in) :: dj1, dj2, dj3, dj4, dj5, dj6
         ans = iphase((dj1 + dj2 + dj3 + dj4)/2)*wigner6j(dj1, dj2, dj5, dj4, dj3, dj6)
     end function Racah
 
-    real(kind=8) function wigner9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9) result(ans)
+    real(kind=8) pure function wigner9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9) result(ans)
         integer, intent(in) :: dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9
         integer :: j123, j456, j789, j147, j258, j369
         integer :: pm123, pm132, pm231, pm456, pm465, pm564, pm789, pm798, pm897
@@ -233,6 +271,120 @@ contains
         end do
         ans = iphase(dth)*P0*PABC
     end function wigner9j
+
+    real(kind=8) pure function dfunc(dj, dm1, dm2, beta) result(ans)
+        integer, intent(in) :: dj, dm1, dm2
+        real(kind=8), intent(in) :: beta
+        integer :: jm1, jp1, jm2, mm, kmin, kmax, k
+        real(kind=8) :: c, s
+        if (.not. (check_jm(dj, dm1) .and. check_jm(dj, dm2))) then
+            ans = 0.0d0
+            return
+        end if
+        jm1 = (dj - dm1)/2
+        jp1 = (dj + dm1)/2
+        jm2 = (dj - dm2)/2
+        mm = (dm1 + dm2)/2
+        c = cos(beta/2)
+        s = sin(beta/2)
+        kmin = max(0, -mm)
+        kmax = min(jm1, jm2)
+        ans = 0.0d0
+        do k = kmin, kmax
+            ans = -ans + unsafe_binomial(jm1, k)*unsafe_binomial(jp1, mm + k)*quick_pow(c, mm + 2*k)*quick_pow(s, jm1 + jm2 - 2*k)
+        end do
+        ans = iphase(jm2 + kmax)*ans
+        ans = ans*sqrt(unsafe_binomial(dj, jm1)/unsafe_binomial(dj, jm2))
+    end function dfunc
+
+    ! Buck et al. Nuc. Phys. A 600 (1996) 387-402
+    real(kind=8) pure function Moshinsky(N, L, nr, lr, n1, l1, n2, l2, lambda, tan_beta) result(ans)
+        integer, intent(in) :: N, L, nr, lr, n1, l1, n2, l2, lambda
+        integer :: n3, l3, n4, l4
+        real(kind=8), intent(in), optional :: tan_beta
+        integer :: f1, f2, f3, f4, X, nl1, nl2, nl3, nl4
+        integer :: fa, fb, fc, fd, na, nb, nc, nd, la, lb, lc, ld, nla, nlb, nlc, nld
+        real(kind=8) :: sec_beta, cos_beta, sin_beta
+        real(kind=8) :: r1, r2, r3, r4
+        integer :: g1, g2, g3, g4, ld_min, ld_max
+        real(kind=8) :: CGab, CGac, CGcd, CGbd, ninej
+        real(kind=8) :: pre_sum, t, ta, tb, tc, td
+        n3 = N
+        l3 = L
+        n4 = nr
+        l4 = lr
+        f1 = 2*n1 + l1
+        f2 = 2*n2 + l2
+        f3 = 2*n3 + l3
+        f4 = 2*n4 + l4
+        ans = 0.0d0
+        if (f1 + f2 /= f3 + f4) return
+        if(present(tan_beta)) then
+            sec_beta = sqrt(1.0d0 + tan_beta*tan_beta)
+            cos_beta = 1.0d0/sec_beta
+            sin_beta = tan_beta/sec_beta
+        else
+            cos_beta = sqrt(0.5d0)
+            sin_beta = sqrt(0.5d0)
+        end if
+
+        X = f1 + f2
+        nl1 = n1 + l1
+        nl2 = n2 + l2
+        nl3 = n3 + l3
+        nl4 = n4 + l4
+        r1 = unsafe_binomial(2*nl1 + 1, nl1)/(unsafe_binomial(f1 + 2, n1)*ishft(nl1 + 2, l1))
+        r2 = unsafe_binomial(2*nl2 + 1, nl2)/(unsafe_binomial(f2 + 2, n2)*ishft(nl2 + 2, l2))
+        r3 = unsafe_binomial(2*nl3 + 1, nl3)/(unsafe_binomial(f3 + 2, n3)*ishft(nl3 + 2, l3))
+        r4 = unsafe_binomial(2*nl4 + 1, nl4)/(unsafe_binomial(f4 + 2, n4)*ishft(nl4 + 2, l4))
+        pre_sum = sqrt(r1*r2*r3*r4)
+        do fa = 0, min(f1, f3)
+            fb = f1 - fa
+            fc = f3 - fa
+            fd = f2 - fc
+            if (fd < 0) cycle
+            t = quick_pow(sin_beta, fa + fd)*quick_pow(cos_beta, fb + fc)* &
+                sqrt(unsafe_binomial(f1 + 2, fa + 1)*unsafe_binomial(f2 + 2, fc + 1)* &
+                     unsafe_binomial(f3 + 2, fa + 1)*unsafe_binomial(f4 + 2, fb + 1))
+            do la = iand(fa, 1), fa, 2
+                na = (fa - la)/2
+                nla = na + la
+                ta = (ishft(2*la + 1, la)*unsafe_binomial(fa + 1, na))/unsafe_binomial(2*nla + 1, nla)
+                do lb = abs(l1 - la), min(l1 + la, fb), 2
+                    nb = (fb - lb)/2
+                    nlb = nb + lb
+                    tb = (ishft(2*lb + 1, lb)*unsafe_binomial(fb + 1, nb))/unsafe_binomial(2*nlb + 1, nlb)
+                    g1 = (la + lb + l1)/2
+                    CGab = unsafe_binomial(g1, l1)*unsafe_binomial(l1, g1 - la)/ &
+                           sqrt(unsafe_binomial(2*g1 + 1, 2*(g1 - l1))*unsafe_binomial(2*l1, 2*(g1 - la)))
+                    do lc = abs(l3 - la), min(l3 + la, fc), 2
+                        nc = (fc - lc)/2
+                        nlc = nc + lc
+                        tc = (ishft(2*lc + 1, lc)*unsafe_binomial(fc + 1, nc))/unsafe_binomial(2*nlc + 1, nlc)
+                        g3 = (la + lc + l3)/2
+                        CGac = unsafe_binomial(g3, l3)*unsafe_binomial(l3, g3 - la)/ &
+                               sqrt(unsafe_binomial(2*g3 + 1, 2*(g3 - l3))*unsafe_binomial(2*l3, 2*(g3 - la)))
+                        ld_min = max(abs(l2 - lc), abs(l4 - lb))
+                        ld_max = min(fd, l2 + lc, l4 + lb)
+                        do ld = ld_min, ld_max, 2
+                            nd = (fd - ld)/2
+                            nld = nd + ld
+                            td = (ishft(2*ld + 1, ld)*unsafe_binomial(fd + 1, nd))/unsafe_binomial(2*nld + 1, nld)
+                            g2 = (lc + ld + l2)/2
+                            CGcd = unsafe_binomial(g2, l2)*unsafe_binomial(l2, g2 - lc)/ &
+                                   sqrt(unsafe_binomial(2*g2 + 1, 2*(g2 - l2))*unsafe_binomial(2*l2, 2*(g2 - lc)))
+                            g4 = (lb + ld + l4)/2
+                            CGbd = unsafe_binomial(g4, l4)*unsafe_binomial(l4, g4 - lb)/ &
+                                   sqrt(unsafe_binomial(2*g4 + 1, 2*(g4 - l4))*unsafe_binomial(2*l4, 2*(g4 - lb)))
+                            ninej = wigner9j(2*la, 2*lb, 2*l1, 2*lc, 2*ld, 2*l2, 2*l3, 2*l4, 2*lambda)
+                            ans = ans + iphase(ld)*t*ta*tb*tc*td*CGab*CGac*CGbd*CGcd*ninej
+                        end do
+                    end do
+                end do
+            end do
+        end do
+        ans = pre_sum * ans
+    end function Moshinsky
 
     subroutine wigner_init(num, type, rank)
         integer, intent(in) :: num
