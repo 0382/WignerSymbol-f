@@ -1,12 +1,25 @@
 name = "WignerSymbol-f"
-version = "0.1.0"
+version = "0.1.1"
 license = "MIT"
 author = "0382"
 maintainer = "18322825326@163.com"
 copyright = "Copyright 2022, 0382"
+
 [build]
 auto-executables = true
-auto-tests = true
-auto-examples = true
+
 [install]
 library = false
+
+[dev-dependencies]
+test-drive.git = "https://github.com/fortran-lang/test-drive.git"
+
+[[test]]
+name = "test"
+source-dir = "test/test/"
+main = "test.f90"
+
+[[test]]
+name = "benchmark"
+source-dir = "test/benchmark/"
+main = "benchmark.f90"

@@ -1,0 +1,18 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: build
+        run: fpm build --profile release
+
+      - name: run test
+        run: fpm test test profile release
+
+      - name: run benchmark
+        run: fpm test benchmark --profile release

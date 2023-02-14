@@ -1,7 +1,6 @@
 program test_wigner
     use WignerSymbol
     implicit none
-    integer :: n, k
     call wigner_init(20, "Jmax", 6)
     print*, wigner6j(6,6,6,6,6,6)
     print*, wigner9j(2,4,6,8,10,12,6,12,18)
